@@ -1,6 +1,9 @@
 # bit-rot-detector
 Detects if files within a file path have changed.
 
+## Requirements
+ * Redis
+
 ## Usage
 ### Build your index and hashes.
 ```
