@@ -27,8 +27,8 @@ for line in $(find ./); do
 			fi
 
 			((number_of_files_added++))
-			redis-cli set $folder:$line:size "`ls -l --all --size $line | cut --field=6 --delimiter=' '`"
-			redis-cli set $folder:$line:md5 "`md5sum $line | cut --field=1 --delimiter=' '`"
+			redis-cli set $root:$folder:$line:size "`ls -l --all --size $line | cut --field=6 --delimiter=' '`"
+			redis-cli set $root:$folder:$line:md5 "`md5sum $line | cut --field=1 --delimiter=' '`"
 		fi
 		if $is_verbose ; then
 			echo "done"
@@ -36,7 +36,7 @@ for line in $(find ./); do
 	fi
 done
 
-number_of_files_datastore=`redis-cli keys "$folder:*:md5" | wc -l`
+number_of_files_datastore=`redis-cli keys "$root:$folder:*:md5" | wc -l`
 
 cd $current_working_directory
 
