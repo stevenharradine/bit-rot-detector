@@ -17,7 +17,7 @@ fi
 
 cd $path
 
-number_of_files_datastore=`redis-cli keys "$folder:*:md5" | wc -l`
+number_of_files_datastore=`redis-cli keys "$root:$folder:*:md5" | wc -l`
 files=`redis-cli keys "$root:$folder:*:md5" | cut --field=2 --delimiter=:`
 
 for line in $files; do
