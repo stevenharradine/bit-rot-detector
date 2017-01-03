@@ -2,6 +2,7 @@
 Detects if files within a file path have changed.
 
 ## Requirements
+ * Bash
  * Redis
 
 ## Usage
