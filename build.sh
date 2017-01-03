@@ -3,26 +3,40 @@ current_working_directory=`pwd`
 
 root=$1
 folder=$2
+is_verbose=false
 path=$root/$folder
-md5_path=$current_working_directory/$folder.md5
-size_path=$current_working_directory/$folder.size
 number_of_files_disk=0
 number_of_files_added=0
+
+if [ "$3" == "--verbose" ] ; then
+	is_verbose=true
+fi
 
 cd $path
 
 for line in $(find ./); do
 	if [ -f "${line}" ] ; then	# if the file exists and
+		if $is_verbose ; then
+			echo -n "$line "
+		fi
+
 		((number_of_files_disk++))
 		if [ "`redis-cli get $folder:$line:size`" == "" ] ; then	# there is no index of it in redis
+			if $is_verbose ; then
+				echo -n "adding "
+			fi
+
 			((number_of_files_added++))
 			redis-cli set $folder:$line:size "`ls -l --all --size $line | cut --field=6 --delimiter=' '`"
 			redis-cli set $folder:$line:md5 "`md5sum $line | cut --field=1 --delimiter=' '`"
 		fi
+		if $is_verbose ; then
+			echo "done"
+		fi
 	fi
 done
 
-number_of_files_datastore=`redis-cli keys "*" | grep ":md5$" | wc -l`
+number_of_files_datastore=`redis-cli keys "$folder:*:md5" | wc -l`
 
 cd $current_working_directory
 
