@@ -3,7 +3,6 @@ current_working_directory=`pwd`
 
 root=$1
 folder=$2
-is_verbose=false
 path=$root/$folder
 number_of_files_ok=0
 number_of_files_disk=0
@@ -12,11 +11,22 @@ error_log=""
 error_md5_match_flag=true
 
 argument_index=0
+is_verbose=false
+hashing_algorithm=md5
+hashing_algorithm_bash_prefix=md5
 for var in "$@"
 do
 	if [ $argument_index -ge 2 ] ; then
     	if [ "$var" == "--verbose" ] ; then
 			is_verbose=true
+		fi
+		if [[ $var =~ ^--hashing-algorithm ]] ; then
+			hashing_algorithm=`echo $var | cut --field=2 --delimiter="="`
+			if [ "$hashing_algorithm" == "crc" ] ; then
+				hashing_algorithm_bash_prefix="ck"
+			else
+				hashing_algorithm_bash_prefix=$hashing_algorithm
+			fi
 		fi
     fi
 
@@ -25,8 +35,8 @@ done
 
 cd $path
 
-number_of_files_datastore=`redis-cli keys "$root:$folder:*:md5" | wc -l`
-files=`redis-cli keys "$root:$folder:*:md5" | cut --field=3 --delimiter=:`
+number_of_files_datastore=`redis-cli keys "$root:$folder:*:$hashing_algorithm" | wc -l`
+files=`redis-cli keys "$root:$folder:*:$hashing_algorithm" | cut --field=3 --delimiter=:`
 
 for line in $files; do
 	if $is_verbose ; then
@@ -34,13 +44,13 @@ for line in $files; do
 	fi
 
 	# do the md5 hashs match
-	md5_on_record=`redis-cli get "$root:$folder:$line:md5"`
-	md5_current=`md5sum $line | cut --field=1 --delimiter=' '`
-	if [ $md5_current != $md5_on_record ] ; then
+	md5_on_record=`redis-cli get "$root:$folder:$line:$hashing_algorithm"`
+	md5_current="`$hashing_algorithm_bash_prefix""sum $line | cut --field=1 --delimiter=' '`"
+	if [[ $md5_current != $md5_on_record ]] ; then
 		if $is_verbose ; then
-			echo "md5 mismatch"
+			echo "$hashing_algorithm mismatch $md5_on_record $md5_current"
 		fi
-		error_log+="md5 does not match $line $md5_on_record $md5_current\n"
+		error_log+="$hashing_algorithm does not match $line $md5_on_record $md5_current\n"
 		error_md5_match_flag=false
 	else
 		if $is_verbose ; then
@@ -60,7 +70,7 @@ for line in $(find ./); do
 			echo -n "$line "
 		fi
 		((number_of_files_disk++))
-		md5="`redis-cli get "$root:$folder:$line:md5"`"
+		md5="`redis-cli get "$root:$folder:$line:$hashing_algorithm"`"
 		if [ "$md5" == "" ] ; then
 			if $is_verbose ; then
 				echo "Untracked"
