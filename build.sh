@@ -8,9 +8,17 @@ path=$root/$folder
 number_of_files_disk=0
 number_of_files_added=0
 
-if [ "$3" == "--verbose" ] ; then
-	is_verbose=true
-fi
+argument_index=0
+for var in "$@"
+do
+	if [ $argument_index -ge 2 ] ; then
+    	if [ "$var" == "--verbose" ] ; then
+			is_verbose=true
+		fi
+    fi
+
+    ((argument_index++))
+done
 
 cd $path
 

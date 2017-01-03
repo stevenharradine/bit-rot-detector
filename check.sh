@@ -11,9 +11,17 @@ error_untracked_file_counter=0
 error_log=""
 error_md5_match_flag=true
 
-if [ "$3" == "--verbose" ] ; then
-	is_verbose=true
-fi
+argument_index=0
+for var in "$@"
+do
+	if [ $argument_index -ge 2 ] ; then
+    	if [ "$var" == "--verbose" ] ; then
+			is_verbose=true
+		fi
+    fi
+
+    ((argument_index++))
+done
 
 cd $path
 
