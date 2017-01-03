@@ -18,7 +18,7 @@ fi
 cd $path
 
 number_of_files_datastore=`redis-cli keys "$folder:*:md5" | wc -l`
-files=`redis-cli keys "$folder:*" | grep ":md5$" | cut --field=2 --delimiter=:`
+files=`redis-cli keys "$root:$folder:*:md5" | cut --field=2 --delimiter=:`
 
 for line in $files; do
 	if $is_verbose ; then
@@ -26,7 +26,7 @@ for line in $files; do
 	fi
 
 	# do the md5 hashs match
-	md5_on_record=`redis-cli get "$folder:$line:md5"`
+	md5_on_record=`redis-cli get "$root:$folder:$line:md5"`
 	md5_current=`md5sum $line | cut --field=1 --delimiter=' '`
 	if [ $md5_current != $md5_on_record ] ; then
 		if $is_verbose ; then
@@ -52,7 +52,7 @@ for line in $(find ./); do
 			echo -n "$line "
 		fi
 		((number_of_files_disk++))
-		md5="`redis-cli get "$folder:$line:md5"`"
+		md5="`redis-cli get "$root:$folder:$line:md5"`"
 		if [ "$md5" == "" ] ; then
 			if $is_verbose ; then
 				echo "Untracked"

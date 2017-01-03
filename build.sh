@@ -21,7 +21,7 @@ for line in $(find ./); do
 		fi
 
 		((number_of_files_disk++))
-		if [ "`redis-cli get $folder:$line:size`" == "" ] ; then	# there is no index of it in redis
+		if [ "`redis-cli get $root:$folder:$line:size`" == "" ] ; then	# there is no index of it in redis
 			if $is_verbose ; then
 				echo -n "adding "
 			fi
