@@ -18,7 +18,7 @@ fi
 cd $path
 
 number_of_files_datastore=`redis-cli keys "$root:$folder:*:md5" | wc -l`
-files=`redis-cli keys "$root:$folder:*:md5" | cut --field=2 --delimiter=:`
+files=`redis-cli keys "$root:$folder:*:md5" | cut --field=3 --delimiter=:`
 
 for line in $files; do
 	if $is_verbose ; then
