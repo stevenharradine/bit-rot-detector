@@ -24,6 +24,10 @@ do
 			else
 				hashing_algorithm_bash_prefix="$hashing_algorithm"
 			fi
+			if [ "$hashing_algorithm" != "crc" ] && [ "$hashing_algorithm" != "md5" ] && [ "$hashing_algorithm" != "sha1" ] ; then
+				echo "Error: invalid hashing-algorithm $hashing_algorithm, should be a comma delimited list of 'crc', 'md5', and/or 'sha1'"
+				exit
+			fi
 		fi
     fi
 
